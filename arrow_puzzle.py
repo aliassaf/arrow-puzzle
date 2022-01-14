@@ -2,34 +2,37 @@
 
 import numpy as np
 
-def solve_raw(shape, level, instance):
-    return [int(x) for x in np.dot(np.linalg.inv(np.array(level)), -np.array(instance) + 1) % shape]
+def solve(level, instance):
+    A = [[0 for j in level.points()] for i in level.points()]
+    for point in level.points():
+        for neighbor in level.neighbors(point):
+            A[level.index(point)][level.index(neighbor)] = 1
+    return [int(x) for x in np.dot(np.linalg.inv(np.array(A)), -np.array(instance) + 1) % level.sides]
 
-def solve_square(size, instance):
-    def index(point):
+class SquareLevel:
+    sides = 4
+
+    def __init__(self, size):
+        self.size = size
+
+    def index(self, point):
         i, j = point
-        return i * size + j
+        return i * self.size + j
     
-    def points():
-        for i in range(size):
-            for j in range(size):
+    def points(self):
+        for i in range(self.size):
+            for j in range(self.size):
                 yield i, j
 
-    def neighbors(point):
+    def neighbors(self, point):
         i, j = point
         for di in (-1, 0, 1):
             for dj in (-1, 0, 1):
-                if 0 <= i + di < size and 0 <= j + dj < size:
+                if 0 <= i + di < self.size and 0 <= j + dj < self.size:
                     yield i + di, j + dj
 
-    level = [[0 for j in points()] for i in points()]
-    for point in points():
-        for neighbor in neighbors(point):
-            level[index(point)][index(neighbor)] = 1
-    return solve_raw(4, level, instance)
+assert solve(SquareLevel(3), [1, 1, 1, 1, 1, 1, 1, 1, 1]) == [0, 0, 0, 0, 0, 0, 0, 0, 0]
+assert solve(SquareLevel(4), [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+assert solve(SquareLevel(4), [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]) == [3, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3]
 
-assert solve_square(3, [1, 1, 1, 1, 1, 1, 1, 1, 1]) == [0, 0, 0, 0, 0, 0, 0, 0, 0]
-assert solve_square(4, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-assert solve_square(4, [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]) == [3, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3]
-
-print(solve_square(4, [4, 2, 4, 1, 2, 2, 1, 1, 1, 4, 1, 3, 3, 1, 3, 1]))
+print(solve(SquareLevel(4), [4, 2, 4, 1, 2, 2, 1, 1, 1, 4, 1, 3, 3, 1, 3, 1]))
