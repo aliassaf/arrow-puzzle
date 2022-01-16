@@ -2,12 +2,14 @@
 
 import numpy as np
 
+
 def solve(level, instance):
     A = [[0 for j in level.points()] for i in level.points()]
     for point in level.points():
         for neighbor in level.neighbors(point):
             A[level.index(point)][level.index(neighbor)] = 1
     return [int(x) for x in np.dot(np.linalg.inv(np.array(A)), -np.array(instance) + 1) % level.sides]
+
 
 class SquareLevel:
     sides = 4
@@ -61,11 +63,16 @@ class HexagonLevel:
                     yield i + di, j + dj
 
 
-assert solve(SquareLevel(3), [1, 1, 1, 1, 1, 1, 1, 1, 1]) == [0, 0, 0, 0, 0, 0, 0, 0, 0]
-assert solve(SquareLevel(4), [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-assert solve(SquareLevel(4), [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]) == [3, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3]
+assert solve(SquareLevel(3), [1, 1, 1, 1, 1, 1, 1, 1, 1]) == [
+    0, 0, 0, 0, 0, 0, 0, 0, 0]
+assert solve(SquareLevel(4), [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) == [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+assert solve(SquareLevel(4), [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]) == [
+    3, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3]
 
 print(solve(SquareLevel(4), [4, 2, 4, 1, 2, 2, 1, 1, 1, 4, 1, 3, 3, 1, 3, 1]))
 
-assert set(HexagonLevel(2).points()) == {(-1, 0), (0, -1), (-1, 1), (0, 0), (1, -1), (0, 1), (1, 0)}
-assert set(HexagonLevel(2).neighbors((-1, 0))) == {(-1, 0), (0, -1), (-1, 1), (0, 0)}
+assert set(HexagonLevel(2).points()) == {
+    (-1, 0), (0, -1), (-1, 1), (0, 0), (1, -1), (0, 1), (1, 0)}
+assert set(HexagonLevel(2).neighbors((-1, 0))) == {
+    (-1, 0), (0, -1), (-1, 1), (0, 0)}
