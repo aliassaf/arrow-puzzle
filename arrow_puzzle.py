@@ -1,20 +1,55 @@
 # /usr/bin/env python3
 
-import numpy as np
+import logging
+import sympy
 
 
 def solve(level, instance):
+    """ Solves a given instance of a level.
+
+    For a level with N points of m states, represents each state configuration
+    as a vector b in Z_m^N where Z_m is the ring of integers modulo m, and the
+    interaction between the points as a NxN matrix A.
+
+    The solution x is then given by the linear system:
+
+    A x + b = 0
+
+    Unfortunately the matrix A can be singular (i.e. non-invertible) and sympy
+    does not support solving such systems modulo m. It supports solving singular
+    matrices or solving modulo m but not both at the same time.
+
+    The workaround is to compute the reduced row echelon form of the augmented
+    matrix A|b, making use of iszerofunc to mark numbers that are 0 modulo m,
+    and then mapping any resulting fractions back to Z_m. See:
+    https://stackoverflow.com/a/37015283.
+
+    Note that if the given instance is valid then there is always a solution.
+    """
+    m = level.sides
     points = list(level.points())
     index = {point: i for i, point in enumerate(points)}
-    A = [[0 for j in level.points()] for i in level.points()]
-    for point in level.points():
-        for neighbor in level.neighbors(point):
-            A[index[point]][index[neighbor]] = 1
-    B = [0 for i in level.points()]
+    N = len(points)
+
+    b = sympy.zeros(N, 1)
     for point, value in level.parse(instance):
-        B[index[point]] = value - 1
-    solution = {points[i]: int(x) for i, x in enumerate(
-        np.dot(np.linalg.inv(np.array(A)), -np.array(B)) % level.sides)}
+        b[index[point]] = value - 1
+    logging.debug("b = %s", b)
+
+    A = sympy.zeros(N, N)
+    for point in points:
+        for neighbor in level.neighbors(point):
+            A[index[point], index[neighbor]] = 1
+    logging.debug("A = %s", A)
+
+    A_b = A.row_join(-b)
+    A_b_rref, _ = A_b.rref(iszerofunc=lambda x: x % m == 0)
+    logging.debug("A_b_rref = %s", A_b_rref)
+
+    x = A_b_rref[:, -1].applyfunc(lambda r: r.p * sympy.mod_inverse(r.q, m) % m)
+    logging.debug("x = %s", x)
+
+    solution = {points[i]: x for i, x in enumerate(x)}
     return level.unparse(solution)
 
 
@@ -54,7 +89,7 @@ class SquareLevel:
 
 class HexagonLevel:
     # See https://www.redblobgames.com/grids/hexagons/.
-    sides = 6
+    sides = 2
 
     def __init__(self, size):
         self.size = size
@@ -92,6 +127,8 @@ class HexagonLevel:
                 if abs(di + dj) < 2 and all((abs(k) < self.size for k in (i + di, j + dj, i + di + j + dj))):
                     yield i + di, j + dj
 
+
+logging.basicConfig(level=logging.DEBUG)
 
 assert solve(SquareLevel(3), [
     [1, 1, 1],
