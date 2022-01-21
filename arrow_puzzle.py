@@ -30,7 +30,7 @@ class SquareLevel:
                 yield ((i, j), instance[i][j])
 
     def unparse(self, solution):
-        grid = [[None for j in range(self.size)] for i in range(self.size)]
+        grid = [[0 for j in range(self.size)] for i in range(self.size)]
         for (i, j), value in solution.items():
             grid[i][j] = value
         return grid
@@ -59,6 +59,18 @@ class HexagonLevel:
     def __init__(self, size):
         self.size = size
 
+    def parse(self, instance):
+        for i in range(-self.size + 1, self.size):
+            for j in range(-self.size + 1, self.size):
+                if i + j in range(-self.size + 1, self.size):
+                    yield ((i, j), instance[i + self.size - 1][j + self.size - 1])
+
+    def unparse(self, solution):
+        return [
+            [solution[i, j]
+                for j in range(-self.size + 1, self.size) if i + j in range(-self.size + 1, self.size)]
+            for i in range(-self.size + 1, self.size)]
+
     def index(self, point):
         i, j = point
         return i * (2 * self.size - 1) + j
@@ -70,7 +82,7 @@ class HexagonLevel:
     def points(self):
         for i in range(-self.size + 1, self.size):
             for j in range(-self.size + 1, self.size):
-                if -self.size + 1 <= i + j < self.size:
+                if i + j in range(-self.size + 1, self.size):
                     yield i, j
 
     def neighbors(self, point):
@@ -112,5 +124,70 @@ print(solve(SquareLevel(4), [
 
 assert set(HexagonLevel(2).points()) == {
     (-1, 0), (0, -1), (-1, 1), (0, 0), (1, -1), (0, 1), (1, 0)}
+assert set(HexagonLevel(2).neighbors((0, 0))) == {
+    (-1, 0), (0, -1), (-1, 1), (0, 0), (1, -1), (0, 1), (1, 0)}
 assert set(HexagonLevel(2).neighbors((-1, 0))) == {
     (-1, 0), (0, -1), (-1, 1), (0, 0)}
+
+assert solve(HexagonLevel(4), [
+    [0, 0, 0, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0],
+]) == [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0],
+]
+print(solve(HexagonLevel(4), [
+    [0, 0, 0, 1, 1, 2, 2],
+    [0, 0, 1, 1, 1, 2, 2],
+    [0, 1, 1, 2, 2, 1, 1],
+    [1, 1, 2, 2, 2, 1, 1],
+    [1, 1, 2, 2, 1, 1, 0],
+    [2, 2, 1, 1, 1, 0, 0],
+    [2, 2, 1, 1, 0, 0, 0],
+]))
+print(solve(HexagonLevel(4), [
+    [0, 0, 0, 1, 1, 2, 2],
+    [0, 0, 1, 1, 2, 2, 2],
+    [0, 1, 1, 2, 1, 2, 1],
+    [1, 1, 2, 2, 2, 1, 1],
+    [1, 2, 1, 2, 1, 1, 0],
+    [2, 2, 2, 1, 1, 0, 0],
+    [2, 2, 1, 1, 0, 0, 0],
+]))
+assert solve(HexagonLevel(4), [
+    [0, 0, 0, 1, 1, 2, 2],
+    [0, 0, 1, 1, 2, 2, 2],
+    [0, 1, 1, 2, 1, 2, 1],
+    [1, 1, 2, 2, 2, 1, 1],
+    [1, 2, 1, 2, 1, 1, 0],
+    [2, 2, 2, 1, 1, 0, 0],
+    [2, 2, 1, 1, 0, 0, 0],
+]) == [
+    [0, 0, 0, 0],
+    [0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0],
+    [0, 0, 0, 0],
+]
+
+print(solve(HexagonLevel(4), [
+    [0, 0, 0, 2, 2, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1],
+    [0, 1, 2, 1, 1, 1, 1],
+    [1, 1, 1, 2, 2, 1, 2],
+    [1, 2, 2, 1, 2, 1, 0],
+    [2, 2, 1, 2, 2, 0, 0],
+    [1, 2, 1, 2, 0, 0, 0],
+]))
