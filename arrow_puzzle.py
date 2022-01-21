@@ -4,11 +4,8 @@ import numpy as np
 
 
 def solve(level, instance):
-    index = dict()
-    points = dict()
-    for i, point in enumerate(level.points()):
-        index[point] = i
-        points[i] = point
+    points = list(level.points())
+    index = {point: i for i, point in enumerate(points)}
     A = [[0 for j in level.points()] for i in level.points()]
     for point in level.points():
         for neighbor in level.neighbors(point):
