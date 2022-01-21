@@ -26,7 +26,7 @@ def solve(level, instance):
 
     Note that if the given instance is valid then there is always a solution.
     """
-    m = level.sides
+    m = level.states
     points = list(level.points())
     index = {point: i for i, point in enumerate(points)}
     N = len(points)
@@ -54,10 +54,10 @@ def solve(level, instance):
 
 
 class SquareLevel:
-    sides = 4
 
-    def __init__(self, size):
+    def __init__(self, size, states):
         self.size = size
+        self.states = states
 
     def parse(self, instance):
         for i in range(self.size):
@@ -89,10 +89,10 @@ class SquareLevel:
 
 class HexagonLevel:
     # See https://www.redblobgames.com/grids/hexagons/.
-    sides = 2
 
-    def __init__(self, size):
+    def __init__(self, size, states):
         self.size = size
+        self.states = states
 
     def parse(self, instance):
         for i in range(-self.size + 1, self.size):
@@ -130,11 +130,11 @@ class HexagonLevel:
 
 logging.basicConfig(level=logging.DEBUG)
 
-assert solve(SquareLevel(3), [
+assert solve(SquareLevel(3, 4), [
     [1, 1, 1],
     [1, 1, 1],
     [1, 1, 1]]) == [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-assert solve(SquareLevel(4), [
+assert solve(SquareLevel(4, 4), [
     [1, 1, 1, 1],
     [1, 1, 1, 1],
     [1, 1, 1, 1],
@@ -143,7 +143,7 @@ assert solve(SquareLevel(4), [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         [0, 0, 0, 0]]
-assert solve(SquareLevel(4), [
+assert solve(SquareLevel(4, 4), [
     [2, 2, 2, 2],
     [2, 2, 2, 2],
     [2, 2, 2, 2],
@@ -153,20 +153,20 @@ assert solve(SquareLevel(4), [
         [0, 0, 0, 0],
         [3, 0, 0, 3]]
 
-print(solve(SquareLevel(4), [
+print(solve(SquareLevel(4, 4), [
     [4, 2, 4, 1],
     [2, 2, 1, 1],
     [1, 4, 1, 3],
     [3, 1, 3, 1]]))
 
-assert set(HexagonLevel(2).points()) == {
+assert set(HexagonLevel(2, 2).points()) == {
     (-1, 0), (0, -1), (-1, 1), (0, 0), (1, -1), (0, 1), (1, 0)}
-assert set(HexagonLevel(2).neighbors((0, 0))) == {
+assert set(HexagonLevel(2, 2).neighbors((0, 0))) == {
     (-1, 0), (0, -1), (-1, 1), (0, 0), (1, -1), (0, 1), (1, 0)}
-assert set(HexagonLevel(2).neighbors((-1, 0))) == {
+assert set(HexagonLevel(2, 2).neighbors((-1, 0))) == {
     (-1, 0), (0, -1), (-1, 1), (0, 0)}
 
-assert solve(HexagonLevel(4), [
+assert solve(HexagonLevel(4, 2), [
     [0, 0, 0, 1, 1, 1, 1],
     [0, 0, 1, 1, 1, 1, 1],
     [0, 1, 1, 1, 1, 1, 1],
@@ -183,7 +183,7 @@ assert solve(HexagonLevel(4), [
     [0, 0, 0, 0, 0],
     [0, 0, 0, 0],
 ]
-print(solve(HexagonLevel(4), [
+print(solve(HexagonLevel(4, 2), [
     [0, 0, 0, 1, 1, 2, 2],
     [0, 0, 1, 1, 1, 2, 2],
     [0, 1, 1, 2, 2, 1, 1],
@@ -192,7 +192,7 @@ print(solve(HexagonLevel(4), [
     [2, 2, 1, 1, 1, 0, 0],
     [2, 2, 1, 1, 0, 0, 0],
 ]))
-print(solve(HexagonLevel(4), [
+print(solve(HexagonLevel(4, 2), [
     [0, 0, 0, 1, 1, 2, 2],
     [0, 0, 1, 1, 2, 2, 2],
     [0, 1, 1, 2, 1, 2, 1],
@@ -201,7 +201,7 @@ print(solve(HexagonLevel(4), [
     [2, 2, 2, 1, 1, 0, 0],
     [2, 2, 1, 1, 0, 0, 0],
 ]))
-assert solve(HexagonLevel(4), [
+assert solve(HexagonLevel(4, 2), [
     [0, 0, 0, 1, 1, 2, 2],
     [0, 0, 1, 1, 2, 2, 2],
     [0, 1, 1, 2, 1, 2, 1],
@@ -219,7 +219,7 @@ assert solve(HexagonLevel(4), [
     [0, 0, 0, 0],
 ]
 
-print(solve(HexagonLevel(4), [
+print(solve(HexagonLevel(4, 2), [
     [0, 0, 0, 2, 2, 1, 1],
     [0, 0, 1, 1, 1, 1, 1],
     [0, 1, 2, 1, 1, 1, 1],
