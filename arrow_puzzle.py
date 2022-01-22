@@ -46,7 +46,8 @@ def solve(level, instance):
     A_b_rref, _ = A_b.rref(iszerofunc=lambda x: x % m == 0)
     logging.debug("A_b_rref = %s", A_b_rref)
 
-    x = A_b_rref[:, -1].applyfunc(lambda r: r.p * sympy.mod_inverse(r.q, m) % m)
+    x = A_b_rref[:, -1].applyfunc(lambda r: r.p *
+                                  sympy.mod_inverse(r.q, m) % m)
     logging.debug("x = %s", x)
 
     solution = {points[i]: x for i, x in enumerate(x)}
